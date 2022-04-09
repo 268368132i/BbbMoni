@@ -15,8 +15,6 @@ div.hover:hover {
 	background: rgb(255, 176, 176);
 	/* this is a maroon */
 }
-
 .button-warning {
-	background: rgb(223, 133, 40);
-	/* this is an orange */
+	background: rgb(255, 176, 176);
 }

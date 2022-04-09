@@ -39,6 +39,7 @@ public class CommandProcessor extends HttpServlet {
 		BbbController bbbctl = new BbbController(this.getServletContext().getInitParameter("bbbServer"),this.getServletContext().getInitParameter("bbbSecret"));
 		try {
 			Document resp = bbbctl.sendCommand(CmdUtils.getCommand(params));
+			System.out.println(resp.toString() +":"+resp.getElementsByTagName("returncode").item(0).getTextContent());
 			if (resp.getElementsByTagName("returncode").getLength()>0) ret = resp.getElementsByTagName("returncode").item(0).getTextContent();
 			else ret="failed";
 			ret=("{\"result\":\""+ret+"\"}");
@@ -56,27 +57,31 @@ public class CommandProcessor extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		this.setHeader(response);
+		System.out.println("CommandProcessor" + request.getParameter("comm"));
+		//Return status json
+		String retJson="{\"result\":\"invalid parameter\"}";
 		if (request.getParameter("comm")!=null) {
 			//Remote commands
 			ArrayList<String> remoteCmds = new ArrayList<String>();
 			remoteCmds.add("publish");
 			remoteCmds.add("unpublish");
 			remoteCmds.add("delete");
-			
+			remoteCmds.add("kill");
 			//Local commands
 			ArrayList<String> localCmds = new ArrayList<String>();
 			localCmds.add("erase");
+			localCmds.add("recover");
 			if (remoteCmds.contains(request.getParameter("comm"))) {
-				this.sendRemoteCommand(request.getParameterMap());
+				System.out.println("Sending remote command");
+				retJson=this.sendRemoteCommand(request.getParameterMap());
 			} else if (localCmds.contains(request.getParameter("comm"))) {
-				response.getWriter().append(
-						CmdUtils.procLocalCommand(
-								request.getParameterMap(), 
+				retJson=CmdUtils.procLocalCommand(request.getParameterMap(), 
 								this.getServletContext().getInitParameter("bbbRecordingsDir"))
-						.toJson());
+						.toJson();
 			}
 			
 		}
+		response.getWriter().append(retJson);
 		response.getWriter().flush();
 	}
 

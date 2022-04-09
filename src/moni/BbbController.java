@@ -65,6 +65,14 @@ public class BbbController {
 		server=bbbServer;
 		secret=bbbSecret;
 	}
+	
+	public String getSalt() {
+		return this.secret;
+	}
+	public String getServer() {
+		return this.server;
+	}
+	
 
 
 	public class HttpConnect  {
@@ -205,71 +213,14 @@ public class BbbController {
 			if (isModerator) password=meeting.getModeratorPassword();
 			else password=meeting.getAttendeePassword();
 			String request = generateRequest("join?fullName="+fullName+"&meetingID="+meetingID+"&password="+password,salt);
-			return serverURL + "/bigbluebutton/api/" + request;
+			return serverURL + "/api/" + request;
 	 }
 	 public String generateJoinRequest(Meeting meeting, String serverURL, String salt, String fullName){
 		 return this.generateJoinRequest(meeting, serverURL, salt, fullName, true);
 	 }
 	 
-	 class Meeting {
-		 String ID,name,modPassword,attendeePassword,mPassword, aPassword;
-		 Node meetingXMLNode;
-		 Meeting (String setID, String setName){
-			 ID = setID;
-			 name = setName;
-		 }
-		 Meeting (Node XMLNode) {
-			 meetingXMLNode = XMLNode;
-			 NodeList props = meetingXMLNode.getChildNodes();
-			 for (int i=0; i<props.getLength(); i++){
-				 Node property = props.item(i);
-				 String propertyName = property.getNodeName();
-				 if (propertyName.equals("meetingID")) ID = property.getTextContent();
-				 if (propertyName.equals("meetingName")) name = property.getTextContent();
-				 if (propertyName.equals("moderatorPW")) mPassword = property.getTextContent();
-				 if (propertyName.equals("attendeePW")) aPassword = property.getTextContent();
-			 }
-		 }
-		 public void setID (String meetingID) {
-			 ID = meetingID;
-		 }
-		 public void setName (String meetingName) {
-			 name = meetingName;
-		 }
-		 public void setModearatorPassword(String moderatorPassword) {
-			 mPassword = moderatorPassword;
-		 }
-		 public void setAttendeePassword (String attendeePassword) {
-			 aPassword = attendeePassword;
-		 }
-		 public String getID(){
-			 return ID;
-		 }
-		 public String getName(){
-			 return name;			
-		 }
-		 public String getModeratorPassword(){
-			 return mPassword;
-		 }
-		 public String getAttendeePassword(){
-			 return aPassword;
-		 }
-		 public String getProperty(String propertyName) throws Exception {
-			 NodeList props = this.meetingXMLNode.getChildNodes();
-			 String availPropName, propertyText;
-			 
-			 for (int i = 0; i < props.getLength(); i++){
-				 availPropName = props.item(i).getNodeName();
-				 if (availPropName.equals(propertyName)) {
-					 return props.item(i).getTextContent();
-				} 				 
-			 }
-			 throw (new Exception("property not found"));			
-		 }
-		 public final String toString() {
-			 return this.getName();
-		 }
-	 }
+	 
+	 
 	 class Recording implements Comparable<Recording>{
 		 Date startTime,endTime;
 		 String name;
@@ -349,9 +300,92 @@ public class BbbController {
 		//NodeList meetingsNodes = sendCommand("getMeetings?bbb").item(0).getChildNodes().
 		ArrayList<Meeting> meetings = new ArrayList<Meeting>();
 		for (int i=0; i<meetingsNodes.getLength(); i++){
-			meetings.add(new Meeting(meetingsNodes.item(i)));			 
+			meetings.add(new Meeting(this, meetingsNodes.item(i)));			 
 		}
 		return meetings;
 	}
 
+}
+
+class Meeting {
+	 String ID,name,modPassword,attendeePassword,mPassword, aPassword;
+	 Node meetingXMLNode;
+	 BbbController bbb;
+	 Meeting (BbbController bbb, String setID, String setName){
+		 ID = setID;
+		 name = setName;
+		 this.bbb = bbb;
+	 }
+	 Meeting (BbbController bbb, Node XMLNode) {
+		 meetingXMLNode = XMLNode;
+		 this.bbb = bbb;
+		 NodeList props = meetingXMLNode.getChildNodes();
+		 for (int i=0; i<props.getLength(); i++){
+			 Node property = props.item(i);
+			 String propertyName = property.getNodeName();
+			 if (propertyName.equals("meetingID")) ID = property.getTextContent();
+			 if (propertyName.equals("meetingName")) name = property.getTextContent();
+			 if (propertyName.equals("moderatorPW")) mPassword = property.getTextContent();
+			 if (propertyName.equals("attendeePW")) aPassword = property.getTextContent();
+		 }
+	 }
+	 
+	 public String generateJoinRequest(String fullName, boolean isModerator){		 
+			String meetingID,password,convertedName;
+			convertedName="";			
+			meetingID = this.getID();
+			try {
+				fullName = URLEncoder.encode(fullName, "UTF-8");
+				meetingID = URLEncoder.encode(meetingID, "UTF-8");
+			} catch (UnsupportedEncodingException e) {				
+				e.printStackTrace();
+			}
+			if (isModerator) password=this.getModeratorPassword();
+			else password=this.getAttendeePassword();
+			System.out.println("bbb=" + bbb.toString());
+			String request = bbb.generateRequest("join?fullName="+fullName+"&meetingID="+meetingID+"&password="+password,bbb.getSalt());
+			return bbb.getServer() + "//api/" + request;
+	 }
+	 public void setID (String meetingID) {
+		 ID = meetingID;
+	 }
+	 public void setName (String meetingName) {
+		 name = meetingName;
+	 }
+	 public void setModearatorPassword(String moderatorPassword) {
+		 mPassword = moderatorPassword;
+	 }
+	 public void setAttendeePassword (String attendeePassword) {
+		 aPassword = attendeePassword;
+	 }
+	 public String getID(){
+		 return ID;
+	 }
+	 public String getName(){
+		 return name;			
+	 }
+	 public String getModeratorPassword(){
+		 return mPassword;
+	 }
+	 public String getAttendeePassword(){
+		 return aPassword;
+	 }
+	 public String getProperty(String propertyName) throws Exception {
+		 NodeList props = this.meetingXMLNode.getChildNodes();
+		 String availPropName, propertyText;
+		 
+		 for (int i = 0; i < props.getLength(); i++){
+			 availPropName = props.item(i).getNodeName();
+			 if (availPropName.equals(propertyName)) {
+				 return props.item(i).getTextContent();
+			} 				 
+		 }
+		 throw (new Exception("property not found"));			
+	 }
+	 public final String toString() {
+		 return this.getName();
+	 }
+	 public boolean kill()  {
+		return bbb.endMeeting(bbb.getServer(), this.ID, modPassword, bbb.getSalt());		
+	}
 }

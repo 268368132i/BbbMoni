@@ -23,8 +23,23 @@ function loadList(node,recClass){
 	
  }
  
- function sendCmd(node,cmd,arg){
+ function sendRecordingCmd(node,cmd,arg){
  	fetch('cmd?comm='+cmd+'&recordings='+arg)
+ 		.then(resp =>{
+ 			return resp.json();
+ 		})
+ 		.then(data=>{
+ 			console.log(data);
+ 			if(data.result === 'SUCCESS' || data.status === 'true'){
+ 				node.remove();
+ 			} else {
+ 				window.alert(data.result);
+ 			}
+ 		});
+ }
+ 
+ function sendMeetingCmd(node,cmd,arg){
+ 	fetch('cmd?comm='+cmd+'&'+arg)
  		.then(resp =>{
  			return resp.json();
  		})

@@ -3,7 +3,15 @@ package moni;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.Map;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
+
+import org.xml.sax.SAXException;
+
+import moni.List.RecordingClass;
 
 public class CmdUtils {
 	public static String getResponseJson(Map<String,String> params) {
@@ -17,6 +25,7 @@ public class CmdUtils {
 	}
 	public static String getCommand(Map<String,String[]> params) {
 		String cmd = params.get("comm")[0];
+		System.out.println("getCommand cmd=" + cmd);
 		String command;
 		switch(cmd) {
 		case "publish":
@@ -24,10 +33,17 @@ public class CmdUtils {
 			break;
 		case "unpublish":
 			command = "publishRecordings?recordID="+params.get("recordings")[0]+"&publish=false";
-			break;			
+			break;
+		case "kill":
+			command = "end?meetingID="+params.get("id")[0].replace(" ", "%20")+"&password="+params.get("pwd")[0].replace(" ", "%20");
+			break;
+		case "delete":
+			command = "deleteRecordings?recordID="+params.get("recordings")[0];
+			break;
 		default:
 			command=null;
 		}
+		System.out.println("Got command:" + command);
 		return command;
 	}
 	
@@ -55,6 +71,38 @@ public class CmdUtils {
 				}
 			}
 			return new CommandReturn(status,resp);
+		case "recover":
+			String[] recordings1 = params.get("recordings")[0].split(",");
+			for(String recording : recordings1) {
+				boolean lstat = false;
+				
+				File recMeta = new File(recDir + "deleted"+File.separator+"presentation" + File.separator + recording + File.separator + "metadata.xml");
+				try {
+					Recording rec = new Recording(recMeta);
+					HashMap<String,String> mod = new HashMap<>();
+					System.out.println("Backing up recording " + rec.getId());
+					rec.backupMeta();
+					mod.put("/recording/state[1]", "published");
+					mod.put("/recording/published[1]","true");
+					System.out.println("Updating parameters");
+					rec.updateMetadataParamsXPath(mod);
+					System.out.println("Moving recording to " + Utils.getRecPath(RecordingClass.PUBLISHED));
+					rec.moveRecording(rec.getBaseDir().getAbsoluteFile() + File.separator + Utils.getRecPath(RecordingClass.PUBLISHED) + File.separator + "presentation");
+					return new CommandReturn(true,"SUCCESS");
+				} catch (SAXException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (ParserConfigurationException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (XPathExpressionException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 		default:
 			return new CommandReturn(false,"Unknown operation");
 		}	

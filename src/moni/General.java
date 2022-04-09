@@ -125,13 +125,19 @@ public class General extends HttpServlet {
 			
 			
 			BbbController bbbC = new BbbController(this.getServletContext().getInitParameter("bbbServer"),this.getServletContext().getInitParameter("bbbSecret"));
-			ArrayList<BbbController.Meeting> meetings = bbbC.getMeetings();
+			ArrayList<Meeting> meetings = bbbC.getMeetings();
 			out.println("<h2>Текущие собрания " + meetings.size() + ":</h2>");
-			out.println("<ul>");			
-			for (BbbController.Meeting m : meetings) {
-				out.println("<li>" + m.getName() + "</li>");
+			out.println("<div class='pure-g'>");			
+			for (Meeting m : meetings) {
+				//Meeting name
+				out.println("<div class='pure-u-1-4'>" + m.getName() + "</div>");
+				//ACtions
+				out.println("<div class='pure-u-1-4'>");
+				out.println("<span class='xspad'><a class='pure-button pure-button-primary' href='"+m.generateJoinRequest("Admin", true)+"'>Admin</a></span>");
+				out.println("<span class='xspad'><a class='pure-button button-error' onclick='sendMeetingCmd(this.parentNode.parentNode.parentNode,\"kill\",\"id=" + m.getID() + "&pwd=" + m.getModeratorPassword()+"\")'>Kill</a></span>");
+				out.println("</div>");
 			}
-			out.println("</ul>");
+			out.println("</div>");
 			
 			
 			if (getInitParameter("printRecordings").equals("true")){
