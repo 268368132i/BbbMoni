@@ -28,23 +28,23 @@
 		<url-pattern>/img/*</url-pattern>
 	</servlet-mapping>
 	<context-param>
-		<param-name>bbbRecordingsDir0</param-name>
+	<!-- Directory where rocordings are stored (Default: /var/bigbluebutton) -->
+		<param-name>bbbRecordingsDir</param-name>
 		<param-value>/var/bigbluebutton/</param-value>
 	</context-param>
 	<context-param>
+	<!-- A secret hash obtained from bbbconf -->
 		<param-name>bbbSecret</param-name>
-		<param-value>cPmxgCV3G0nCpsB3za0rMl0dOlmWZCy8WuSubj8QQg</param-value>
+		<param-value>BBB_HASH_SECRET</param-value>
 	</context-param>
 	<context-param>
+	<!-- BBB API URL for your server -->
 		<param-name>bbbServer</param-name>
-		<param-value>https://webinar.do-ido72.ru/bigbluebutton</param-value>
+		<param-value>https://YOUR_BBB_DOMAIN/bigbluebutton</param-value>
 	</context-param>
 	<context-param>
+	<!-- Root path for device which free space will be monitored -->
 		<param-name>recordingDrive</param-name>
 		<param-value>/</param-value>
-	</context-param>
-	<context-param>
-		<param-name>bbbRecordingsDir</param-name>
-		<param-value>/home/ilya/ap/bigbluebutton/</param-value>
 	</context-param>
 </web-app>

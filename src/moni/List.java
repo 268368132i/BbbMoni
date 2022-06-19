@@ -57,9 +57,7 @@ public class List extends HttpServlet {
     	//for (Recording rec : recs) {
     	for (int i=0; i<recs.size();i++) {
     		w.print(Utils.printRecording(recs.get(i)));
-    		
     		counter++;
-    		//System.out.println(recs.get(i).toString() + "; Printing count: " + i+"/"+recs.size());
     	}
     	System.out.println("Printed recordings: " + counter);
     }
