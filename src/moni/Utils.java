@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
@@ -18,10 +17,8 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.zip.ZipEntry;
@@ -30,30 +27,23 @@ import java.util.zip.ZipOutputStream;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import org.apache.catalina.util.XMLWriter;
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import moni.List.RecordingClass;
@@ -172,7 +162,6 @@ class Recording {
 	 */
 	public void moveRecording(String newDest) throws IOException {
 		if (!newDest.endsWith(File.separator)) newDest = newDest + File.separator;
-		Path oldPath = this.file.toPath();
 		String sep = "";
 		if (newDest.endsWith(File.separator)) sep = File.separator;
 		File newFile = new File(newDest +sep+ this.file.getParentFile().getName());
@@ -189,11 +178,9 @@ class Recording {
 
 public class Utils {
 	/**
-	 * Attempts to calculate the size of a file or directory.
-	 * 
-	 * <p>
-	 * Since the operation is non-atomic, the returned value may be inaccurate.
-	 * However, this method is quick and does its best.
+	 * Calculates size of a file or directory
+	 * @param path
+	 * @return
 	 */
 	public static long size(Path path) {
 
@@ -228,9 +215,9 @@ public class Utils {
 	    } catch (IOException e) {
 	        throw new AssertionError("walkFileTree will not throw IOException if the FileVisitor does not");
 	    }
-
 	    return size.get();
 	}
+	
 	public static String convertToHumanSize(Long size) {
 		BigDecimal convSize;
 		String units[] = {"","K","M","G","T"};
@@ -265,14 +252,10 @@ public class Utils {
     	}
     	
     	File dir = new File(path + "/" + recPath + "/" + postfix +"/");
-    	//System.out.println(dir.getAbsolutePath());
     	ArrayList<File> recordings = new ArrayList<File>();
-    	int counter=0;
     	for (File f : dir.listFiles()) {
     		if (f.isDirectory()) recordings.add(f);
-    		counter++;
     	}
-    	//System.out.println("Counter=" + counter);
     	return recordings;
 
     }
@@ -292,12 +275,10 @@ public class Utils {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder builder = factory.newDocumentBuilder();
 		Document doc = builder.parse(file);
-		//System.out.println("Encoding:" + doc.getXmlEncoding() + " of " + file.getAbsolutePath());
 		return doc;
 	}
 	
 	public static String getRecordingName(Document doc) {
-		//System.out.println(doc.getElementsByTagName("bbb-recording-name").item(0).getTextContent());
 		return doc.getElementsByTagName("bbb-recording-name").item(0).getTextContent();
 	}
 	public static String getRecordingStartTime(Document doc, SimpleDateFormat sdf) {
@@ -326,18 +307,16 @@ public class Utils {
 		}
 		for (File dir : dirmap.values()) {
 			File metadata = new File(dir.getAbsolutePath() + "/metadata.xml");
-			//Document doc = getXMLDoc(metadata);
 			recs.add(new Recording(metadata, getRecPath(rc)));
 		}
-		//System.out.println("Dirs:" + dirs.size() + "; Recs:" + recs.size());
 		return recs;
 	}
 	public static String printRecording(Document rec) {
-		String tag = "<div class=\"pure-g\" id=\"r_" + getRecordingId(rec) + "\">";
-		tag+="<div class=\"pure-u-1-5 \">" + getRecordingName(rec) + "</div>";
-		tag+="<div class=\"pure-u-1-12\">" + getRecordingStartTime(rec) + "</div>";
-		tag+="</div>";
-		return tag;
+		StringBuilder tag = new StringBuilder("<div class=\"pure-g\" id=\"r_" + getRecordingId(rec) + "\">");
+		tag.append("<div class=\"pure-u-1-5 \">" + getRecordingName(rec) + "</div>");
+		tag.append("<div class=\"pure-u-1-12\">" + getRecordingStartTime(rec) + "</div>");
+		tag.append("</div>");
+		return tag.toString();
 	}
 	public static StringBuilder printRecording(Recording rec) {
 		StringBuilder tag = new StringBuilder();
@@ -437,6 +416,11 @@ public class Utils {
 	          });
 	    }
 	}
+	/**
+	 * Get name of a media directory.
+	 * @param in
+	 * @return
+	 */
     public static String getMedDir(String in) {
     	switch(in) {
     	case "published": return "published";

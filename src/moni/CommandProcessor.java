@@ -44,18 +44,13 @@ public class CommandProcessor extends HttpServlet {
 			else ret="failed";
 			ret=("{\"result\":\""+ret+"\"}");
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			ret="{\"result\":\"internal error\"}";
 		}
 		return ret;
     }
 
-	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
-	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
 		this.setHeader(response);
 		System.out.println("CommandProcessor" + request.getParameter("comm"));
 		//Return status json
@@ -89,7 +84,6 @@ public class CommandProcessor extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
 		doGet(request, response);
 	}
 

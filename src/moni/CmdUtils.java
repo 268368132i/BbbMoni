@@ -90,16 +90,12 @@ public class CmdUtils {
 					rec.moveRecording(rec.getBaseDir().getAbsoluteFile() + File.separator + Utils.getRecPath(RecordingClass.PUBLISHED) + File.separator + "presentation");
 					return new CommandReturn(true,"SUCCESS");
 				} catch (SAXException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (ParserConfigurationException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (XPathExpressionException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}

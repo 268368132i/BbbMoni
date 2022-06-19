@@ -13,5 +13,7 @@ This is a simple Apache Tomcat webapp that allows you to easily check free space
 ### Installation
 1. Clone this repository.
 2. Modify web.xml file. You'll need to specify BBB API URL as well as API SECRET.
-3. run `mvn package`
+3. run `mvn package` (you'll need Maven).
 4. Deploy .war file to your BigBlueButton Tomcat server.
+
+*You can setup a reverse-proxy in your nginx. The webapp is accessible at "/moni/moni" by default.*

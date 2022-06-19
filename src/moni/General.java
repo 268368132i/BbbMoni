@@ -53,7 +53,6 @@ public class General extends HttpServlet {
 	protected void processRequest(HttpServletRequest request, HttpServletResponse response) 
 	throws ServletException, IOException {
 		response.setContentType("text/html;charset=UTF-8");
-		//request.getRequestDispatcher("index.jsp").forward(request, response);	
 	}
 	
 	class DirectoryWithSize{
@@ -75,7 +74,7 @@ public class General extends HttpServlet {
 		return printRecordingsSize("Записи");
 	}
 	String printRecordingsSize(String title) {
-		String out = new String();
+		StringBuilder out = new StringBuilder();
 		String dir = this.getServletContext().getInitParameter("bbbRecordingsDir");
 		
 		
@@ -85,20 +84,18 @@ public class General extends HttpServlet {
 		dirs.add(new DirectoryWithSize(dir, "unpublished","Скрытые"));
 		dirs.add(new DirectoryWithSize(dir, "recording","В обработке и временные файлы"));
 		
-		out+="<div class=\"content\">";
-		out+="<h3>"+title+"</h3><ul>";
-		
+		out.append("<div class=\"content\">");
+		out.append("<h3>"+title+"</h3><ul>");
+
 		for (DirectoryWithSize d : dirs) {
-			out+="<li class=\"smallpad\"><a class=\"pure-button\" onclick=\"loadList(this.parentNode,\'"+d.dir+"\')\")><span class=\"cspad\" name=\"" + d.dir + "\">" + d.name +"</span><span class=\"xspad\">" + d.hsize + "</span></a>";
+			out.append("<li class=\"smallpad\"><a class=\"pure-button\" onclick=\"loadList(this.parentNode,\'"+
+					d.dir+"\')\")><span class=\"cspad\" name=\"" + d.dir + "\">" + d.name +"</span><span class=\"xspad\">" +
+					d.hsize + "</span></a>");
 		}
 		System.out.println("test");
-		/*out+="<a onclick=\"loadList(this,'published')\">" + printDirSize(dir + "published", "li", "Опубликованные</a>");
-		out+=printDirSize(dir + "deleted", "li", "<a onclick=\"loadList(this,'deleted')\">В корзине</a>");
-		out+=printDirSize(dir + "unpublished", "li", "<a onclick=\"loadList(this,'unpublished')\">Скрытые</a>");
-		out+=printDirSize(dir + "recording", "li", "В обработке и временные файлы");*/
-		out+="</ul></div>";
-		return out;
-	
+		out.append("</ul></div>");
+		return out.toString();
+
 	}
 	
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
